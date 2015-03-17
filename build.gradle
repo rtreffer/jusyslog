@@ -1,0 +1,120 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'osgi'
+apply plugin: 'nexus'
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7.1'
+        classpath 'eu.appsatori:gradle-fatjar-plugin:0.3'
+    }
+}
+
+apply plugin: 'eu.appsatori.fatjar'
+
+group = 'de.measite.jusyslog'
+description = "A java syslog interface"
+sourceCompatibility = 1.7
+version = 'dev'
+ext.isSnapshot = true
+
+if (!ext.isSnapshot && 'git rev-parse --abbrev-ref HEAD'.execute().text.trim() == 'master') {
+  throw new org.gradle.api.InvalidUserDataException('Untagged version detected! Please tag every release.')
+}
+if (version != 'dev' && version != 'git tag --points-at HEAD'.execute().text.trim()) {
+  throw new org.gradle.api.InvalidUserDataException(
+    'Tag mismatch detected, version is ' + version + ' but should be ' +
+    'git tag --points-at HEAD'.execute().text.trim())
+}
+
+if (ext.isSnapshot) {
+  version = version + '-SNAPSHOT'
+}
+
+fatJar {
+  archiveName = "jusyslog-" + version + "-with-dependencies.jar"
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+nexus {
+    attachSources = true
+    attachTests = false
+    attachJavadoc = true
+    sign = true
+}
+
+configurations {
+    provided
+    provided.extendsFrom(compile)
+}
+
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    main.runtimeClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+modifyPom {
+    project {
+        name 'jusyslog'
+        description 'A java syslog interface via unix domain sockets'
+        url 'https://github.com/rtreffer/jusyslog'
+        inceptionYear '2015'
+
+        scm {
+            url 'https://github.com/rtreffer/jusyslog'
+            connection 'scm:https://github.com/rtreffer/jusyslog'
+            developerConnection 'scm:git://github.com/rtreffer/jusyslog.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+            license {
+                name 'The LGPL 2.1 (GNU Lesser General Public License)'
+                url 'https://www.gnu.org/licenses/lgpl.html'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'rtreffer'
+                name 'Rene Treffer'
+                email 'treffer@measite.de'
+            }
+        }
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.11'
+    compile 'net.java.dev.jna:jna-platform:4.1.0'
+    provided 'ch.qos.logback:logback-core:1.1.2'
+    provided 'ch.qos.logback:logback-classic:1.1.2'
+    provided 'org.apache.logging.log4j:log4j:2.2'
+    provided 'org.apache.logging.log4j:log4j-core:2.2'
+    provided 'log4j:log4j:1.2.17'
+    provided 'org.tinylog:tinylog:1.0-rc-3'
+}
