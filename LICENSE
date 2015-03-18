@@ -1,0 +1,24 @@
+Jusyslog is dual-licensed under 2 alternative Open Source/Free 
+licenses: LGPL 2.1 and Apache License 2.0.
+
+What this means is that one can choose either one of these
+licenses (for purposes of re-distributing jusyslog; usually by
+including it as one of jars another application or
+library uses) by downloading corresponding jar file,
+using it, and living happily everafter. 
+
+You may obtain a copy of the LGPL License at:
+
+http://www.gnu.org/licenses/licenses.html
+
+A copy is also included in the downloadable source code package
+containing jusyslog, in file "LGPL2.1", under the same directory
+as this file.
+
+You may obtain a copy of the ASL License at:
+
+http://www.apache.org/licenses/
+
+A copy is also included in the downloadable source code package
+containing jusyslog, in file "ASL2.0", under the same directory
+as this file.
